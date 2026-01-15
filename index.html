@@ -510,7 +510,7 @@
 
         function spawnH() {
             if(!gameActive) return;
-            hList.push({x: Math.random()*(hCanvas.width-20)+10, y: -20, s: Math.random()*3+1.5});
+            hList.push({x: Math.random()*(hCanvas.width-20)+10, y: -20, s: Math.random()*3+2.5});
             setTimeout(spawnH, 700);
         }
 
@@ -705,4 +705,5 @@
         setInterval(createBGHeart, 600);
     </script>
 </body>
+
 </html>
