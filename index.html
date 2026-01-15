@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Story | One Year Together</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rose: #ff4d6d;
+            --soft-pink: #fff0f3;
+            --deep-rose: #c9184a;
+            --night-sky: #1a1a2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--soft-pink);
+            overflow: hidden; 
+            touch-action: manipulation;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh; /* Dynamic height for mobile browsers */
+            position: fixed; /* Prevents whole-page bouncing on iOS */
+            inset: 0;
+        }
+
+        .cursive { font-family: 'Dancing Script', cursive; }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(50px);
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        .page.prev {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+
+        /* Night Theme for Climax */
+        .page-night {
+            background-color: var(--night-sky);
+            color: white;
+        }
+
+        .floating-heart {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0); opacity: 0; }
+            20% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .progress-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 400px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--rose);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--rose);
+        }
+
+        .nav-btn {
+            background: white;
+            color: var(--rose);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            z-index: 100;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            background: var(--rose);
+            color: white;
+        }
+
+        .photo-frame {
+            background: white;
+            padding: 10px 10px 35px 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 280px;
+            color: #333;
+            margin: 0 auto 20px auto;
+        }
+
+        /* Gallery Styles - Responsive Scroll */
+        .gallery-container {
+            width: 100%;
+            max-width: 800px;
+            height: 55vh; /* Fixed height so buttons stay visible */
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--rose) transparent;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            z-index: 5;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Game Elements */
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #game-canvas, #star-canvas {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            touch-action: none;
+        }
+
+        #star-canvas {
+            background: #0d1117;
+        }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            width: 8px;
+            height: 8px;
+            background: var(--rose);
+            border-radius: 50%;
+        }
+
+        /* Timeline Styles - Responsive & Aligned */
+        .timeline {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
+            margin: 0 auto;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: var(--rose);
+            top: 10px; bottom: 10px; left: 24px;
+        }
+        .timeline-item {
+            padding: 15px 10px 15px 50px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '❤️';
+            position: absolute;
+            left: 10px;
+            top: 15px;
+            z-index: 2;
+            font-size: 1.2rem;
+            line-height: 1;
+            background: var(--soft-pink);
+            border-radius: 50%;
+        }
+
+        /* Modal */
+        #image-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        #modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.3); border-radius: 4px; }
+    </style>
+</head>
+<body class="antialiased select-none">
+
+    <div id="heart-container"></div>
+
+    <!-- PAGE 0: Welcome -->
+    <div class="page active" id="page-0">
+        <div class="mb-6 text-6xl animate-bounce">❤️</div>
+        <h1 class="text-4xl md:text-7xl cursive text-[#ff4d6d] mb-6">Hi, Mrs.Pavan Sai!</h1>
+        <p class="text-gray-600 text-lg md:text-xl max-w-md leading-relaxed px-4">
+            Eroju <b>Mana</b> Love Anniversary Bangarammmm. Mana Journey ela gadichindho chudhamaa...??
+        </p>
+        <button onclick="nextPage()" class="nav-btn mt-10">Padha chudham...❤️</button>
+    </div>
+
+    <!-- PAGE 1: The Counter -->
+    <div class="page" id="page-1">
+        <h2 class="text-3xl md:text-4xl font-semibold text-gray-800 mb-8">Mana Prema Prayanam start ayyi enni days aindho chusava....</h2>
+        <div class="grid grid-cols-2 gap-4 md:flex md:gap-8">
+            <div class="bg-white p-6 rounded-3xl shadow-sm min-w-[120px]">
+                <span id="days" class="block text-4xl font-bold text-[#ff4d6d]">365</span>
+                <span class="text-xs uppercase tracking-widest text-gray-500">Days</span>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm min-w-[120px]">
+                <span id="hours" class="block text-4xl font-bold text-[#ff4d6d]">00</span>
+                <span class="text-xs uppercase tracking-widest text-gray-500">Hours</span>
+            </div>
+        </div>
+        <p class="mt-8 text-gray-400 italic "><b>Inni days ela barinchaveyy babbuuu nannuuu.... actually nenu ninnu barinchanu kada.</b></p>
+        <button onclick="nextPage()" class="nav-btn mt-12">Sare gani Oka Question</button>
+    </div>
+
+    <!-- PAGE 2: The "Do You Love Me" Challenge -->
+    <div class="page" id="page-2">
+        <h2 class="text-3xl md:text-4xl cursive text-[#ff4d6d] mb-10 text-center px-4">Nijam Matrameyy Cheppalliiii</h2>
+        <p class="text-gray-600 mb-8 px-4">Nuvvuu Pottivi Kada 😅😁</p>
+        <div class="flex gap-6 items-center justify-center h-20 w-full relative">
+            <button onclick="nextPage()" class="nav-btn bg-green-500 !text-white border-none z-10">YES Pottineyy 😍</button>
+            <button id="no-btn" onmouseover="moveNoBtn()" ontouchstart="moveNoBtn()" class="nav-btn bg-gray-200 !text-gray-500 border-none transition-all duration-200 z-10">KADHUUUUUU 🙊</button>
+        </div>
+        <p id="no-msg" class="mt-8 text-sm text-gray-400 opacity-0 italic"><strong>Nijamm Cheppaveyy 😉</strong></p>
+    </div>
+
+    <!-- PAGE 3: The Timeline -->
+    <div class="page" id="page-3">
+        <h2 class="text-3xl cursive text-[#ff4d6d] mb-8">Our Big Moments</h2>
+        <div class="timeline custom-scroll">
+            <div class="timeline-item">
+                <p class="font-bold text-[#ff4d6d]">The First "Hlo" from YOU.</p>
+                <p class="text-xs text-gray-600"><strong>Destiny mana journey ni plan chesna roju (15th Dec 2024)</strong></p>
+            </div>
+            <div class="timeline-item">
+                <p class="font-bold text-[#ff4d6d]">The First "Padipoyaa.." from YOU.</p>
+                <p class="text-xs text-gray-600"><strong>Aaroju Inka Marchipolekapothunnaaa (17th Jan 2025) Nelalo Padipoyavv.</strong></p>
+            </div>
+            <div class="timeline-item">
+                <p class="font-bold text-[#ff4d6d]">The First Meet after 5 Months 16 Days</p>
+                <p class="text-xs text-gray-600"><strong>The Most Memorable Day we had (4th July 2025).</strong></p>
+            </div>
+            <div class="timeline-item">
+                <p class="font-bold text-[#ff4d6d]">Today</p>
+                <p class="text-xs text-gray-600 font-semibold">One Year Aipoindhiii Prema Modalayyii (16th Jan 2026).</p>
+            </div>
+        </div>
+        <button onclick="nextPage()" class="nav-btn mt-8">What's in my heart?</button>
+    </div>
+
+    <!-- PAGE 4: Heart Collector Game -->
+    <div class="page" id="page-4">
+        <h2 class="text-3xl cursive text-[#ff4d6d] mb-4">Love Catcher</h2>
+        <p class="text-sm text-gray-500 mb-4 px-4"><strong>10 hearts collect chesthey na heart lo em undho teluskovochuu</strong></p>
+        <canvas id="game-canvas" width="300" height="350"></canvas>
+        <div id="score-display" class="mt-4 font-bold text-[#ff4d6d]">0/10 Collected</div>
+        <button id="game-next" onclick="nextPage()" class="nav-btn mt-6 opacity-50 pointer-events-none">My Heart Unlocked🖇️❣</button>
+    </div>
+
+    <!-- PAGE 5: THE BIG GALLERY -->
+    <div class="page" id="page-5">
+        <h2 class="text-3xl md:text-4xl cursive text-[#ff4d6d] mb-4">Na Heartuuuu🫶💘... <br>Na Heart motham Nuvveyy untav inkevaru untaru cheppu, chusko kavalantey...</h2>
+        <div class="gallery-container">
+            <div class="gallery-grid" id="main-gallery"></div>
+        </div>
+        <div class="mt-8">
+            <button onclick="nextPage()" class="nav-btn">Chala undhi inka</button>
+        </div>
+    </div>
+
+    <!-- PAGE 6: Tease Page -->
+    <div class="page" id="page-6">
+        <div class="photo-frame transform rotate-[-2deg]">
+            <img src="https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/611632848_762727136262997_7129206741140900484_n.webp?stp=dst-webp_p480x480&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=6kV8rtOq2esQ7kNvwGfCqLQ&_nc_oc=Adk9ZBZCAckFnhIpTQl7WMd40FWTaUa-Dso2KnRZgfjeDeMt6nig27tUmEpwFlTIwNu7GypsK9UCfPrOdW6D2Fiq&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QGuHMDafSRhNUwcXHdpVYXMlkelO5tbO93sUwp8m31zzw&oe=6990B8C3" class="w-full h-48 md:h-64 object-cover rounded" alt="Together">
+            <p class="cursive text-xl mt-4">Happy 1-Year Love Anniversary Prasanna Lakshmi ❤️❤️</p>
+        </div>
+        <p class="text-gray-600 max-w-sm px-4 italic text-center text-sm md:text-base"><strong>Eppatiki ilagey untam kada, vadhalav kadhaa</strong></p>
+        <button onclick="nextPage()" class="nav-btn mt-8">Assalu Vadhalanu(No Second Option)</button>
+    </div>
+
+    <!-- PAGE 7: The "Magic Button" -->
+    <div class="page" id="page-7">
+        <h2 class="text-3xl cursive text-[#ff4d6d] mb-6">Inkoka Question</h2>
+        <p class="text-gray-600 mb-10 max-w-xs px-4">Niku Asal Brain Undha Dimple..</p>
+        <div class="grid grid-cols-2 gap-4 w-full max-w-xs px-4" id="multi-btn-container">
+            <button class="nav-btn decoy" onmouseover="teleportBtn(this)">Undhi</button>
+            <button class="nav-btn decoy" onmouseover="teleportBtn(this)">Emo</button>
+            <button class="nav-btn decoy" onmouseover="teleportBtn(this)">Chaalaa</button>
+            <button onclick="nextPage()" class="nav-btn !bg-[#ff4d6d] !text-white">Assal Ledhu</button>
+        </div>
+    </div>
+
+    <!-- PAGE 8: NEW GAME - Starlight Memories -->
+    <div class="page page-night" id="page-8">
+        <h2 class="text-3xl cursive text-white mb-4">Connect The Stars</h2>
+        <p class="text-sm text-gray-400 mb-6 px-4">Nijanga Niku Brain Untey Idhi Complete Cheyyavey Chustha</p>
+        <canvas id="star-canvas" width="300" height="350"></canvas>
+        <p id="star-msg" class="mt-4 text-rose-300 font-semibold italic h-6"></p>
+        <button id="star-next" onclick="nextPage()" class="nav-btn mt-6 opacity-0 pointer-events-none">Undhi le brain idhi nokku.</button>
+    </div>
+
+    <!-- PAGE 9: THE GRAND CLIMAX -->
+    <div class="page page-night" id="page-9">
+        <div class="bg-white/10 backdrop-blur-lg p-6 md:p-12 rounded-3xl shadow-2xl max-w-md w-[90%] relative border border-white/20">
+            <span class="absolute -top-10 left-1/2 -translate-x-1/2 text-6xl md:text-7xl animate-pulse">✨</span>
+            <h3 class="cursive text-3xl md:text-4xl text-[#ff4d6d] mb-4 mt-2">Happy Anniversary, My Dear Wifeyyy...❤️</h3>
+            <div class="text-gray-200 leading-relaxed text-sm md:text-base text-left space-y-3 max-h-[35vh] overflow-y-auto pr-2 custom-scroll">
+                <p>Na Bujji Bangarameyyy Nuvvuuu❤️</p>
+                <p>Enni memories enni mudhulu huguluu konni godavalu konni misunderstandings chinni gudhulu bujji miscommunications <br> enthooo Premaaaaa 365 days ananthamaina prema mundhu mundhu inka chaaalaaaaaa premaaaaa mudhulu huguluuu godavalu penchudhamaa😅 <br> urkey sarada prema matram thaggodhu thaggindhaaa chuduu😠 <br>
+                Nen penchukunta le worry avvaku sare na, kalisi sadhidham mana couple goals ni mundhu mana marriage ni, kani nv kastapadali mari sare naaa...</p>
+                <p>Asal entha premisthunnavey mental dhanaaa pichi ekkisthunnav daily... Love you so much nannaluuu... </p>
+                <p>Ni Perlu ennunnayo chudhamaaa....🤔💭</p>
+                <br>
+                <h4>Bangadammuu❤️</h4>
+                <h4>Nanna❤️</h4>
+                <h4>Maa❤️</h4>
+                <h4>Srimathiii❤️</h4>
+                <h4>Bujji Thalli❤️</h4>
+                <h4>Na Bangarukonda❤️</h4>
+                <h4>Pottiilluuuu❤️</h4>
+                <h4>Pichi dhana❤️</h4>
+                <h4>Mental dhana❤️</h4>
+                <h4>Na Pellammaaa❤️</h4>
+                <h4>Ms.48❤️</h4>
+                <h4>Wifeyyy❤️</h4>
+                <h4>Darlinguuu❤️</h4>
+                <h4>Tesoro❤️</h4>
+                <h4>Na Butta Bomma❤️</h4>
+                <h4>Na Gaaju Bomma❤️</h4>
+                <h4>Na Mudhula Gumma❤️</h4>
+                <h4>Na vayyari Bammaa❤️</h4>
+                <h4>Na Preyasiii❤️</h4>
+                <h4>Na Priyasakhiiii❤️</h4>
+                <h4>Andala Rakshasiii❤️</h4>
+                <h4>Na Mysore Sandal Papa❤️</h4>
+                <h4>Poookkiieeee❤️</h4>
+                <h4>Prasannaaa❤️</h4>
+                <h4>Lakshmiiii❤️</h4>
+                <h4>Dimpleuuuu❤️</h4>
+                <h4>Mrs.Pavan Sai❤️</h4>
+                <h4>Mardhalaaaa❤️</h4>
+                <h4>Babbyyyyy❤️</h4>
+                <h4>Cutie Pie❤️</h4>
+                <h4>Oyeeeee❤️</h4>
+                <h4>Oseyyyyy❤️</h4>
+                <h4>Emeeyyyyy❤️</h4>
+                <h4>Pravan❤️</h4>
+                <h4>Ammiiii❤️</h4>
+                <h4>Ma Avida Garuuu❤️</h4>
+                <h4>Baeeee❤️</h4>
+                <h4>Na Bharyaaa Na Balamm❤️</h4>
+                <p>Intha 🤏 levu gani Inni perla niku Pehhh</p>
+                <p class="cursive text-2xl md:text-3xl text-[#ff4d6d] pt-4 text-center">Nannu Pelli Cheskuntava Nannaaa</p>
+            </div>
+        </div>
+        <div class="flex flex-col items-center gap-4 mt-6">
+            <button id="vow-btn" onclick="sealVow()" class="nav-btn !bg-[#ff4d6d] !text-white text-lg md:text-xl animate-bounce shadow-lg shadow-rose-500/50">Cheskuntaaaa ra Magadaaa ❤️</button>
+            <button onclick="goToStart()" class="text-gray-400 hover:text-white transition-colors text-sm underline flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Malli chusthava, games kuda aadochu malli...
+            </button>
+        </div>
+        <p id="final-msg" class="mt-4 text-white cursive text-2xl opacity-0 transition-opacity duration-1000">Aithey Inka Pelli Panulu Start Chesedhammmm....</p>
+    </div>
+
+    <!-- Progress UI -->
+    <div class="progress-container">
+        <div id="progress-fill" class="progress-fill"></div>
+    </div>
+
+    <div id="image-modal" onclick="closeModal()">
+        <img id="modal-img" src="" alt="Memory">
+    </div>
+
+    <script>
+        const startDate = new Date("January 17, 2025 02:35:10").getTime();
+        let currentPage = 0;
+        const totalPages = 10;
+
+        function updateStats() {
+            const now = new Date().getTime();
+            const diff = now - startDate;
+            document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        }
+        setInterval(updateStats, 1000);
+        updateStats();
+
+        function updateProgress() {
+            document.getElementById('progress-fill').style.width = (currentPage / (totalPages - 1)) * 100 + "%";
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                document.getElementById(`page-${currentPage}`).classList.remove('active');
+                document.getElementById(`page-${currentPage}`).classList.add('prev');
+                currentPage++;
+                document.getElementById(`page-${currentPage}`).classList.add('active');
+                updateProgress();
+                
+                if(currentPage === 4) startHeartGame();
+                if(currentPage === 8) startStarGame();
+            }
+        }
+
+        function goToStart() { location.reload(); }
+
+        function moveNoBtn() {
+            const btn = document.getElementById('no-btn');
+            btn.style.position = 'absolute';
+            btn.style.left = Math.random() * 70 + '%';
+            btn.style.top = Math.random() * 70 + '%';
+            document.getElementById('no-msg').style.opacity = '1';
+        }
+
+        // Heart Collector Game
+        let gameScore = 0;
+        let gameActive = false;
+        const hCanvas = document.getElementById('game-canvas');
+        const hCtx = hCanvas.getContext('2d');
+        let hList = [];
+
+        function startHeartGame() {
+            gameActive = true;
+            spawnH();
+            animateHeartGame();
+        }
+
+        function spawnH() {
+            if(!gameActive) return;
+            hList.push({x: Math.random()*(hCanvas.width-20)+10, y: -20, s: Math.random()*3+1.5});
+            setTimeout(spawnH, 700);
+        }
+
+        function animateHeartGame() {
+            if(!gameActive) return;
+            hCtx.clearRect(0,0,hCanvas.width, hCanvas.height);
+            hList.forEach((h, i) => {
+                h.y += h.s;
+                hCtx.font = "20px Arial";
+                hCtx.fillText("❤️", h.x, h.y);
+                if(h.y > hCanvas.height) hList.splice(i, 1);
+            });
+            requestAnimationFrame(animateHeartGame);
+        }
+
+        function handleGameInput(e) {
+            if(!gameActive) return;
+            const r = hCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const x = clientX - r.left;
+            const y = clientY - r.top;
+
+            hList.forEach((h, i) => {
+                if(Math.sqrt((x-h.x)**2 + (y-h.y)**2) < 40) {
+                    hList.splice(i, 1);
+                    gameScore++;
+                    document.getElementById('score-display').innerText = `${gameScore}/10 Collected`;
+                    if(gameScore >= 10) {
+                        gameActive = false;
+                        document.getElementById('game-next').classList.remove('opacity-50', 'pointer-events-none');
+                        document.getElementById('game-next').classList.add('animate-bounce');
+                    }
+                }
+            });
+            e.preventDefault();
+        }
+
+        hCanvas.addEventListener('mousedown', handleGameInput);
+        hCanvas.addEventListener('touchstart', handleGameInput, {passive: false});
+
+        // Star Connection Game
+        const sCanvas = document.getElementById('star-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let stars = [];
+        let connections = [];
+        const heartPath = [
+            {x: 160, y: 120}, {x: 210, y: 70}, {x: 260, y: 120}, 
+            {x: 160, y: 280}, {x: 60, y: 120}, {x: 110, y: 70}, {x: 160, y: 120}
+        ];
+        let nextStarIdx = 0;
+
+        function startStarGame() {
+            stars = heartPath.map(p => ({...p, active: false}));
+            drawStars();
+        }
+
+        function drawStars() {
+            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height);
+            // Draw lines
+            sCtx.strokeStyle = '#ff4d6d';
+            sCtx.lineWidth = 2;
+            sCtx.beginPath();
+            connections.forEach((c, i) => {
+                if(i===0) sCtx.moveTo(c.x, c.y);
+                else sCtx.lineTo(c.x, c.y);
+            });
+            sCtx.stroke();
+            // Draw stars
+            stars.forEach((s, i) => {
+                sCtx.fillStyle = (i === nextStarIdx) ? '#fff' : (s.active ? '#ff4d6d' : '#333');
+                sCtx.shadowBlur = s.active ? 15 : 0;
+                sCtx.shadowColor = '#ff4d6d';
+                sCtx.beginPath();
+                sCtx.arc(s.x, s.y, i === nextStarIdx ? 6 : 4, 0, Math.PI*2);
+                sCtx.fill();
+            });
+        }
+
+        sCanvas.onclick = (e) => {
+            const r = sCanvas.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+            const s = stars[nextStarIdx];
+            if(Math.sqrt((x-s.x)**2 + (y-s.y)**2) < 25) {
+                s.active = true;
+                connections.push(s);
+                nextStarIdx++;
+                document.getElementById('star-msg').innerText = ["Comeon ardam aipoindhi niku", "Yess nik brain undhi", "Kani kaniii kaniiii", "Aipoindhi konchameyy", "Inka lasttt okkati"][nextStarIdx-1] || "Chudu Ni Lagey Andhanga osthundhi kadaaa...❤️ Inkokati undhi dot chudu";
+                if(nextStarIdx >= stars.length) {
+                    document.getElementById('star-next').classList.replace('opacity-0', 'opacity-100');
+                    document.getElementById('star-next').classList.remove('pointer-events-none');
+                }
+                drawStars();
+            }
+        };
+
+        function sealVow() {
+            for(let i=0; i<50; i++) {
+                setTimeout(createBGHeart, i * 50);
+            }
+            document.getElementById('vow-btn').innerText = "Marriage Fixed With Me ❤️";
+            document.getElementById('final-msg').style.opacity = '1';
+        }
+
+        // Gallery Data
+        const gallery = document.getElementById('main-gallery');
+        const galleryImages = [
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/612403345_26916032757985654_5553100679228209938_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=EqIp9QxXvoAQ7kNvwFnznDk&_nc_oc=AdmRgZeWwke8jOtpMDANiTyzHrYsvD8Td59iLiJakFnjxgVPtC-_MtLLmfQ249iCYx6pfcblDypJUDKMo38PhbBN&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QFaQ0xUVBi5koKVolPUlQ8ozYbn49ILt7Nic38BL78lHA&oe=6990AE1F",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/614903618_1574471020417980_2051832964240259935_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=LtpljtNxyfcQ7kNvwEqVenv&_nc_oc=AdnZNIahL4yCTrGb8EfCcUDGcZ0hOTz66uaj6eKFl7G9VX4t6TNO0dSweiLehsFJUatm7_1yFINin8Lt1pw8f0LE&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QEX9FwwdXD5lZkaghis2MFpRSgqyDa0kagsHNz81kpCNw&oe=699098F1",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/613410359_1554345575771251_5268862478803196714_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=PnR59vw-la4Q7kNvwFdb-1p&_nc_oc=AdmzTsdyithxL7AvzPBcXIcQuEzBtn4N9Wv1_l3gmq9-f8pBrxzJPRW4pk-DphYACvGtdakGTg0ceHmAf73vDN-w&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QHnBGnDYiPTPdcpkdicCyY4ozxJbrCRxStDC0uNWsuzTg&oe=69909855",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/611055548_1371087917546926_6806246561813245426_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=h8VqY74JUnoQ7kNvwEu9RWf&_nc_oc=AdmgOJtL95uInirFkP_t1wzpwlynjNModfyucan-3GF_xUHnBVfHhbw69NaoUvbKA0A&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QF0TShFevedH6XngYjKZfscgRSJaxGwU6GNQqt6-YHixA&oe=6990CC4B",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/612023010_1269550278562907_2873077387509149624_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=hmnD6EvSjC8Q7kNvwFP1nJt&_nc_oc=AdngBpVsbLRQLFJXgdkoVpdpDlJfaZmmzVpDi3obH5_HPC-qMGN6x0cYVR8hmsrShP95Q77Hl1vlnoBrcWJEew2W&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QEP1zR6ghNBYDOT4L_UHw0FjtdKfLk-IRIC0IiF-H_xpw&oe=6990B802",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/612265058_799047196522564_2259205654443309778_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=bl5Mgt1_bssQ7kNvwFZOp6K&_nc_oc=Admil67KLmWeaboB7rZfXRUzRf01K-rXLgrODxzAGI9WqS9CUaBqdxMpsYoq_VyVkg0DYx1u01oyZgPP1tClPspk&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QFVrc-d0GHgaY1zif4zviuvG0HnSZCj4MdhL75ZISXGfg&oe=6990A53B",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/614670374_4257558481179865_2878726327428657966_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=M0e0OjnHV5wQ7kNvwGm1q4r&_nc_oc=Adn08_ZwFyfR8rzOGXBuGnsGCKgG9UJQP7jBc4ZXJYDxgOd6XNwncBwEWFAGg8rKZgJ7r-7WeQr-0KiE9Vx6vdnd&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QHjz-i6yYQAIRcYZAO-pqAlqDtBwVGVCy-S_-vNTeCVyg&oe=6990A64F",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/611458496_1236270781947932_235360739993817107_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=XopCRtVWXYMQ7kNvwGqC3SC&_nc_oc=AdnMKwA2wY2EJkyySuOrvtiKJ4QdZNNfmQRXh0lIDmJaYaI4yRtZFlPGhInI2mCkBRPC-WqAOw-tgCt33UjBKewj&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QF1VbmsthM4jbsZrimYOjqnBGeWXArMMhMVvDKSWMwiVg&oe=6990B3A4",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/496512152_1124469906364795_3319899444389458062_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=l73cBTqV_3gQ7kNvwEHh_Zs&_nc_oc=AdlMAlmfe2uWtcUSvsE2nZ-0dHNuorbUJmiD-1kV5snf2fkTek3AgJ-EUgjByln0LMddcoXBEln9ILUvfM-QWYr3&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QF9Hu12ioQ0isC3icM3aaP-HGwhlEsy11hkmz_VViqDUQ&oe=6990CA58",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/612913130_2068399357258970_2136769479636980751_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=J8iMG8ZVhS0Q7kNvwF38OTC&_nc_oc=AdmKxGB80y0Qs7LP-A2Z3hHqOZggJUo7nR2_7XEDeXuGbGQxqLGKGZAvtY9w8Vz6vPzyaE4yDZ8EU1lRLUqlK1di&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QGu9R278wfab60pfj2UoyJocdTWjSukgKIzfhiAv7pTCQ&oe=6990C809",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/615424803_1207539148177427_3451909827643068743_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=eJJIq6Q1mbIQ7kNvwF0zEcw&_nc_oc=AdkdngWg1rhsOUVxa6Xke9gLxhjWc5E5DWje-TznjuYf891uxmqjeoRKLFnlkF-qMFxy_1SOLXcXe4mi7PRKSNAz&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QExz0lzAGypNmEQBpejSA7muE9Vy5iOalQPYZujtXDYbQ&oe=6990B6FA",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/607427104_894294593172449_819362789456961471_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=qNJUnA7l5XwQ7kNvwGYhQsg&_nc_oc=Adm1ypDp4X8S0sGglKB5DKnf2MvzR1epxzkVxU0JEX17ut7RiZ0PnkaLLstZrjDgpv7fpe0CTf_ZckWKyalo-RdE&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QGvoW70Q-5LXY1DlvEzAxNn6RtwTz8kwiNJWbtNQNp_mA&oe=6990C036",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/598152581_1608889986786361_4162738875749971176_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=z9K0ukg0c2oQ7kNvwGnScb6&_nc_oc=AdlalDhIDbhmimN4w4at9rqOL2dZoDS0QWP29suiTFUPg1DlK2KY0PkbuZkxGcYxmXy4iquWiQB4z3s171bPdvGM&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QG6vZtE93xPy8TTMdCHFSvvp9kNAxBwJ2o8L1kxL4urUQ&oe=6990ABEC",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/609370629_1581098019694091_3894460302952959026_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=wHY3N4h0X0sQ7kNvwGmDNt3&_nc_oc=Adk4SYblrO6xj_9nbC9UgYw3quVcsLf1OSKeXpKPyfPXnpBrLKAjvR7_0PZ6tP8ShFtWxODG5jvejXmE3arlpDw7&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QGV2k-ufhNfFEf59XzGSuZ6DDpN57lqQLkc_DlJhH24SA&oe=6990A57C",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/613343518_2033754250527045_1834348178331649421_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=pxbqncnRFqUQ7kNvwHGBZ62&_nc_oc=Adlv0K3J7MKHBl1bVpuKz_Iqj-5EtlhKt1IThqlczRuHbQRvVm5DlzZV7abY2S4so8QKcYnIYoVN3C3PQOo_xtFr&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QGY_ctEBzB42o9d_lrdS41T-zIKB4G-rQGXNGjOFo0GMg&oe=6990C869",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/611726268_1983535895536832_828798721597519033_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=106&ccb=1-7&_nc_sid=0024fc&_nc_ohc=YJxnOH8EMssQ7kNvwEQmvEI&_nc_oc=AdnhYjY1L115CqPJPuMHRW34vdrUT27fZLW6lpv5KjjqvR4Q7N5ck7wn0mjqsj6Zhy86hsnkaJT4ua87E0_RcfjW&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QHF2zw5NHJL5ogapwVeBxFsA5Ipv3mEm3Gr7jjjcuvIlg&oe=6990AE99",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/614636320_1581885342727636_7649169137897404534_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=108&ccb=1-7&_nc_sid=0024fc&_nc_ohc=OsYB6ha8D7UQ7kNvwEFgzhC&_nc_oc=AdnrcJuHpXLA1aqoDfmKAyl_ePMi1hw_08Pu_utR3pDqWRw6aqCbmQ_h8mSUp9VHPWohh9dVvIm0ZIHmDqsFhJpu&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QGjWstaS8T8WQQz0yJe3fTbMmk-J95xJNsB7LH2zQFIVw&oe=6990C2BC",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/612150987_898829365940596_834895680004914167_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=7Ennf9Z9xEkQ7kNvwHXWC2-&_nc_oc=AdlBu3b06iDwsyMIGUz8bRwGRbQB4oiqlwRPozlCiUDbdsB1XBKh9jeMyuMEHwOVIleyXNYyPxRpx6WOKOk_rBoq&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QHysbBcQNywdDPadoTINp8LmW4w8Njlp82UaMCfhlqRiw&oe=6990A065",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/616931063_1086091223618359_2928210613274293963_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=106&ccb=1-7&_nc_sid=0024fc&_nc_ohc=VNb9sSPy4hoQ7kNvwFplVea&_nc_oc=AdlwQTeMerdDlyn0x8MoCZ_oBqJ1CfwUzh43A63Jym3ifKvtIqanBqWP83ACfcOm8LKPTWfw7LqMWpCEiqSLrH0N&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QH7x-tTPdjDO3U3N5zVk_tFqJSQxysNUprN-D3K0_tPNQ&oe=6990BFAE",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/614686553_1051674560753809_8891704881681891192_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=v5w0WCMxNPUQ7kNvwF4SbzI&_nc_oc=Adm33eYrX9PI94Y2CSY_CBCsJiyUktQCyXPpzO7bAQqRNoX-Q_wOYcF4Z9cN1pA5M8y3t_6zOqT09F7WFxDSmEU7&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QGDlM3a3nNgD4HGDEvnMJLwBwQPtOO1585BkpsEDb2nuA&oe=6990B409",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/616491941_1421358109344407_7317016433288930675_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=108&ccb=1-7&_nc_sid=0024fc&_nc_ohc=KJVsbeN_9ugQ7kNvwEAP_S0&_nc_oc=Adn8tky1_0aN4jNyQeDJVIeIbfC73S8aS2TPp6gYFDGujy3etE2OGvktEU-LgVmxyPSQi1mpY8u0oxpSlBwbTZfX&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QHGMob_KmoGDpbZ8HsQtfWNG3K_f09gjbIXSejO-6f8Bg&oe=6990AFD3",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/612907716_898000816139523_3465147231299098115_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=f0i6bcWneTIQ7kNvwF7q7cV&_nc_oc=AdmP7Nr3MT-Mx1PqGEJRxMquUaNWntl-_NrVlwxG0pcEHFIu7txEsEEhch6Lo3zkKsOsaomGWKikgL_YcdM4dG26&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QEBnHHILJsxEZbT6XGhIrADjhpgQNJ89tr3wkmj-4Zd0Q&oe=6990A4AB",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/597916791_1228251145926926_1829948934059193184_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=THvsf7CtjC4Q7kNvwEENs-y&_nc_oc=AdlaerTLpOWq_HyLst7ea0vK8LHhlAlFhoOFmSq222Gk8q2tpfvRRjabKqoOcuxMyZUbfNw_Gdd_lQpNd85DDQYo&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QGDpkT-qO6WlOvMTUgzJN2FHl5m70jxwP1IugABHL9x1Q&oe=6990B3A5",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/614707897_904712848802133_5633127373138345680_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=111&ccb=1-7&_nc_sid=0024fc&_nc_ohc=rBBuefE4vmwQ7kNvwHo1YH4&_nc_oc=Adlzs3kWDOUiHVZIFeWYIB98c3tBfwxRCTP7njtzt04Ycf7_xLAxywBV9MQIhk5_jkL2OnPWTNkY_snSH_DTFtVH&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QG5VazgjdbRornplsPxSVejp7xg7K0UJwG6KpyvMmpusw&oe=6990A83A",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/613122183_1420536949746906_6867442063610737182_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=mGR566HcmaIQ7kNvwGt5yrn&_nc_oc=AdlC-RUnGQPt6tkU8mBVDyloKop_VmBhmAm2HYTkkpXrdZcqTVvWWjZ6cJZW8wiH6-OLJEkA4Ci9RDTgwssQW7dm&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QFYAXF6D1M8eN0UENlTMbwDKIlbePq2Bh3qX9Md8QtlJg&oe=6990B7E5",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/611628658_740710149096928_8910310686889286274_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=0024fc&_nc_ohc=C4iZxIl8gUkQ7kNvwHMF0np&_nc_oc=Adlqx6xGclnmJ0HDIEHht7-lkQJWBP_uImPWggHm1JiSMVdXAdE06vcj2LBMnviLmPp9-OzKJf8EnEG-fWmv7Eto&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QG8Zc8oGG17gY_wJXbeLCV_c5uew3uv0MiYgGkDp3FeNA&oe=6990B627",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/614639602_731649949990437_654581771619735065_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=UrzqDBJlBEkQ7kNvwEdeUcb&_nc_oc=AdlPnYee9lC-Y3ypRx35TnYLnmhPoHIk8v_Kgpyd739NpVThySMp4DquVXXmVDp6E7lwwua-c1SG2GTt1yg8WRJK&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QHkXhen4ymoHe91HmeYGB7YdDtJkWizu5fy-LLLYczxsw&oe=6990B47A",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/612155793_1407107827475824_5712826993001058997_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=0024fc&_nc_ohc=zzmUnKQV7koQ7kNvwFFvUtw&_nc_oc=Adnm33vPnNQiny9dTujWACyKvWUKMXF3owRaieRLPF_2PUhCA4Q5uo4ZA0Zn2LJlCmV7USIEXt-WcI4b0n6z2UVd&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QGMnkAtLjvzVdMFgTt4SKS8mTnVLZgjlH_bjTuT7_luTw&oe=6990C864",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/612155793_1220200183377473_6562664112276684368_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=Xf4H3odxLqoQ7kNvwGvtqMe&_nc_oc=Adk0YH8zoTUogOb5uq87-JtMDyGfC0F0DzTI1WVjaIJr8xxY4iz294vkr1VtHB_4KJhzrAkfxHW-XgG2AlO6CtQ8&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QH6ChePZ0qAmDTeZn7SDYkyG_8zTMYFcFVDLHeGT7WEpg&oe=6990AAAF",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/598942650_1612673616568553_3294161361314342910_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=Bt7eW4hrH3MQ7kNvwFPAlwh&_nc_oc=AdmHdfdg9p1wcj0fK9GE14NoFPKIR8zHnhqOnVnFfdmzKb80IEOl-42Ul5-9IwTrOIJyIZUOke3CimIpZZySFzJr&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QFBt50KLbbyRtEkzLQzx215B8zFlv8bRUmduZY5jDvXWg&oe=6990B1DC",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/614263533_771012008679148_1206841901336330550_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=MoOJ5uLVERwQ7kNvwHF4wFn&_nc_oc=Adm1Gh4tqZfawSmr1C3AADL-5jbi_mJCmYLj_BIqBuVJFBphx2K68r02tx_ObAqpjkfoQXmrk-ZuqhaEymOe_cCv&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QEBObmKuT2xsdjVZcGNTuUEHl4SdbB0Ph7LUBJZRcCPOQ&oe=6990B1BA",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/614680471_2619809995065448_281189800070103533_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=ZvEDMJi0Pn0Q7kNvwFij3-J&_nc_oc=AdkPsddegWoKxf2VRkmfhIfajDhWbZKoMb1kxyUFpx0bGWTxMptnZ57w77JxbMXvlCBkZzLu_38OIt0x205K7HaJ&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QEsOPrweaw7U2uRtxzobCPZ9KenedXf295chsN0xk-AwQ&oe=6990C95C",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/614643603_1351526363415867_3169116056495991956_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=106&ccb=1-7&_nc_sid=0024fc&_nc_ohc=T5iL5qecNk4Q7kNvwF4BHGu&_nc_oc=Adk0MuxTe5lEQ4U77yKKCzvneIMT1kFCS-tbEcdztTlV173WzvtcF6QWpfKhe1hKiPei_cUTGk8jMEPD-jq4m4_a&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QGM2CiRhH8K5kmtWc-sfdyQ43YWWTXNvUf4BpvQzFTY8w&oe=6990A477",
+         "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/614695825_1389672192818302_6962681052480176895_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=FkM8Loxo_TcQ7kNvwEoDzqu&_nc_oc=AdmktSCWvsnAB8oE852q17hWG6aau5OJni1o_eRrRtMvXEqDOjWh-3zHfwwpduxSTrySxLohoW870CR5D8jhHM3z&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QE-GaZapnyWDxyoBN8bBMgHYUFPVwkWOBYecQ7HhS51Hw&oe=6990C361",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/612829239_737384502363988_1357091181429830095_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=100&ccb=1-7&_nc_sid=0024fc&_nc_ohc=IaTeHXXQ_L4Q7kNvwFwARsE&_nc_oc=AdnEMxcnvAWrreSWbEfRM3gsGHZhU0HOYiyo6VkVUch_5-hhfmV-ZCsnwsgEHn2jcov8ncPqL1qFtwCpQASFWnY7&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QE3IGjajlgZhH1mT6pupHl1tvyNl2WJF0u0b91Fcb3F1A&oe=6990AD4B",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/615804217_746061604784467_7672568746149454244_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=7SoR1o3U5I4Q7kNvwGAWaWd&_nc_oc=Adkyam57skeIfD1_7V8x5edvEHlrK0ff1sRob2xpBpJItbw-XEzaZUtUwym339Sbs-AgahuYcSByVStqlstObO5l&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QErDDkkfpadiETkGGiZQJXdwDvd3rk1Xudyr8B4MJlalQ&oe=69909746",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/612321517_915200027689109_8346868600085725766_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=104&ccb=1-7&_nc_sid=0024fc&_nc_ohc=SlTsiowyrEkQ7kNvwGd2rzF&_nc_oc=AdkrMSC4LI4qXL4ODfk00H9mEAin7J_2WdWCCAY0kKhIwCzlPZ6ElcgaUaB1tKCx7G1_dNxzJUu-mjcB3VvdM9Ad&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QGWEeIdVgaTTkstCnb-nV3KNa3QcyLEEfDQH0eLDBwqiQ&oe=6990BA68",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/594471552_1955806818483966_7249739091010600118_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=109&ccb=1-7&_nc_sid=0024fc&_nc_ohc=fovlx5yztsMQ7kNvwHAE1so&_nc_oc=AdnKSAyEmOSkuOrct3QldeSYOIY550KYN-y8ygG3DurF2yhJrHBetYUus2kWyTocPnCySGnAvdPezaC3_hvzLTgw&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QGUaIFBrEUF-JHbal22rPdvAwtz9SdNXf3mBVUm1kclDA&oe=69909581", 
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/611016307_888483890226346_7859195833017902096_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_sid=0024fc&_nc_ohc=RlsfVL8XFVYQ7kNvwHCq6L2&_nc_oc=AdnKDTeCiW5LVFLLx8IpsKbooNcwYtSXlaTExnkoWr2jTOsttbm1X6AC1Dnv-URD36gINx_1hlvEXHAruektzowo&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QG9QIkWayabTzTVq90MBo-y898-5Gf3FPshXXqQ2XOaUQ&oe=6990B8DB",
+          "https://scontent.fhyd1-4.fna.fbcdn.net/v/t1.15752-9/615338341_1568548887530326_1886637018594368629_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=0024fc&_nc_ohc=YAjKffwCWDcQ7kNvwFdoGL-&_nc_oc=AdkgPeNeq2gA_OvairBKVV3YDQRBDeQuUFCYOhKiBhRQX38S-0m-0FTmBjf3TR1iwF13cRCJDpazvB0NiVWDNZ-V&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-4.fna&oh=03_Q7cD4QGA-8pFNKm9VsvnaIq_MjPTzABx9hzx8LJ_97jWSFN_Dw&oe=6990B8C2",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/598229428_2998545393674401_1302323384162276688_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=Kwcw44lCmfEQ7kNvwEa1Fxf&_nc_oc=Adk9P_RB8jWvECoTgVh0C0EsaFDIL_N2Iuk0XdSTeUaimci60CGrBoyAxGwLlabFX4J4c6ugHJAg6NsBfnK6Hzmx&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QEvcTa3CGVYTrF2aoWppWt2OnvgiTZAXW0MSEJM-5POKQ&oe=69909958",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/611659544_1428150915689992_843345279752970066_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=102&ccb=1-7&_nc_sid=0024fc&_nc_ohc=hDoZjRKE5KMQ7kNvwEm7IBA&_nc_oc=Adme8VPPSvbT9k8rBKZPJAkvaF2mCmKornL7ERkpdIMKiind4VH-2H33uv0WzMcrGU2nqa9AOun1o3bLV7wgXh4I&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QE6Hz4S4vdzQmP4XtQ6sMORDCIfFhN3X8cF5VhQFchxCg&oe=699093B3",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/614892797_1823342638371187_8226307108061715534_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=gyAfsW9TR5oQ7kNvwG2KFJ3&_nc_oc=Adm0OekIWod0Xklj6ZX2MneYXQjz5i6uDk4krWNq1tDypEJ3IZzoF9qh8rsGpmh9L6Pe-bdiVjB_s_1IqluVXZ6D&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QGPOkwKfp7X5hag8shu1Hpjt8eyWjLrEX7_LIrJa8Uc5A&oe=6990AA34",
+          "https://scontent.fhyd1-3.fna.fbcdn.net/v/t1.15752-9/615752215_1376790767072108_7245036564869278162_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=hxelHwAoqsgQ7kNvwGcpOyw&_nc_oc=AdlBGH_I7XxSLCpmmpwLIMokflKob1exso5LZHghpf1xAoTwikNykRm2C13Ayy0tEF3JC3QzixjMbboETnyar2yX&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-3.fna&oh=03_Q7cD4QEqr3b1GM_vA1g2b1T9va9uxE4Fu8fqID4qepkwXddxvQ&oe=69909264",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/615491625_1295941262579234_1092853473103177303_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=iKelc35wxJ8Q7kNvwG3DUgV&_nc_oc=AdkHlQ_plGpyH97qVVghLej_Vd0W1MUoSlAVIkc1dKiztOEkxVp7wQr6FXCfEWxghs2kdK_001DL4q6fZINOf-_r&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QG8LsUY3vbreeVbakqPPGYe0Q1BQ2YZ7f9Ji4IEUq1k3g&oe=6990B52F",
+          "https://scontent.fhyd1-6.fna.fbcdn.net/v/t1.15752-9/598117583_1207479064931083_8300933278402118853_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=110&ccb=1-7&_nc_sid=0024fc&_nc_ohc=ugroCrzR_H0Q7kNvwF8vLDP&_nc_oc=Admz7rFOI3pLVg5McDMMmbolojqrGTpPf9L_SmE7kvMGH1PKG_jYo0UmdauhiadgDnTHDqMm5jct53uT5cHieOyL&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-6.fna&oh=03_Q7cD4QHXVU402-V7I7tB0DaywFbSmwa8FX4gNBdQ-mJZID2NUg&oe=6990B94B",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/612868045_1398400841694626_8785089891734387422_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=0024fc&_nc_ohc=RaUBxlW6Sp4Q7kNvwFpCRpV&_nc_oc=AdkSLX7TowvNEGffQwtMY5gW0QaGSwHOa42kKQD763PMMG63BNN_u_Ux3hyPqZ5ynwmdOMaW-ZkZPFtNAGomTac9&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QEee1DNiH1zvcivAgXEavG3PrTuuzd_7KZheR_Hq--wZA&oe=6990A99C",
+          "https://scontent.fhyd1-7.fna.fbcdn.net/v/t1.15752-9/612357272_1174678374838395_8045060109712996466_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=0024fc&_nc_ohc=FIdiAAl7oxQQ7kNvwHiVxf7&_nc_oc=AdkToqrpuk9tH797U8qMY880hbp7Jf5Iv-LBgOBgREh1HFA5DMolgovf86MqBfKWZcDU3qQnqK9nN_kwoIHX4RSx&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-7.fna&oh=03_Q7cD4QHtrEqPk-Ai3YlHxthVosGnpmF--Zc5s3_Tb5GpbHDQFQ&oe=6990C4D0",
+          "https://scontent.fhyd1-5.fna.fbcdn.net/v/t1.15752-9/612832283_1363483755551655_5622172286942547209_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=WVqf7bUX3I0Q7kNvwHvKs38&_nc_oc=Adl_pAfu6EZQW7LDVvI2s-f_T7CvvycS2M5mYEpKzyodUe76K0TF-f2cb-TegWpZPVQDDi5rCVHcK6wMYiIMK7eJ&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-5.fna&oh=03_Q7cD4QFWppgr7bzxiTriRbriALq3FOtBIeC2HaJnzmoxXkZFNg&oe=69909B3D",
+          "https://scontent.fhyd1-2.fna.fbcdn.net/v/t1.15752-9/617317163_835113432864412_2356484524681502741_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=0024fc&_nc_ohc=lA13utsue14Q7kNvwGoJVhQ&_nc_oc=Adn2KBtkMjZjsqosfcZ_GaJ5VOt_DaWJgPH6R73bpMKJEuHEdraOCPySSL9vhbk67sVG1POjjbjKQSU-n5CxDIqp&_nc_ad=z-m&_nc_cid=1174&_nc_zt=23&_nc_ht=scontent.fhyd1-2.fna&oh=03_Q7cD4QH0zrzZJLv4yblf9vMuQvlKQBHu-LTzcOUSvUQ8jL7-yQ&oe=6990C6A1",
+        ];
+
+        galleryImages.forEach(src => {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            const img = document.createElement('img');
+            img.src = src;
+            img.className = "w-full h-full object-cover rounded";
+            div.onclick = () => {
+                document.getElementById('modal-img').src = src;
+                document.getElementById('image-modal').style.display = 'flex';
+            };
+            div.appendChild(img);
+            gallery.appendChild(div);
+        });
+
+        function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
+
+        function teleportBtn(btn) {
+            btn.style.transform = `translate(${(Math.random()-0.5)*150}px, ${(Math.random()-0.5)*150}px)`;
+        }
+
+        function createBGHeart() {
+            const container = document.getElementById('heart-container');
+            const h = document.createElement('div');
+            h.innerHTML = '❤️';
+            h.className = 'floating-heart';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.fontSize = (Math.random()*20+15) + 'px';
+            h.style.animationDuration = (Math.random()*3+4) + 's';
+            container.appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }
+        setInterval(createBGHeart, 600);
+    </script>
+</body>
+</html>
